@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        NODE_HOME = tool name: 'nodejs', type: 'NodeJS'
+        PATH = "${NODE_HOME}/bin:${env.PATH}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Pull the latest code from GitHub
+                git 'https://github.com/yourusername/nodejs-jenkins-demo.git' // Use your GitHub repo URL
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                // Install npm dependencies
+                script {
+                    sh 'npm install'
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                // Run the tests using npm
+                script {
+                    sh 'npm test'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Here you could deploy your app. For simplicity, we are just starting the server.
+                script {
+                    sh 'npm start &'
+                    // Sleep for a few seconds to ensure the app is running
+                    sleep 10
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            echo 'Build or deployment failed.'
+        }
+    }
+}
